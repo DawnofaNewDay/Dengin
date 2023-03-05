@@ -1,7 +1,7 @@
 using SFML.Graphics;
 using SFML.System;
 
-namespace Dengin;
+namespace Dengin.GameObjects;
 
 public class GameObject
 {
