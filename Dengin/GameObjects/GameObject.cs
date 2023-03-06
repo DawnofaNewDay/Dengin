@@ -7,12 +7,12 @@ public class GameObject
 {
     protected Vector2f Pos = new Vector2f(0, 0);
     public readonly Sprite CurrentSprite = new Sprite();
-    public Vector2f Size = new Vector2f(64, 64);
     protected readonly RenderWindow? _win;
+    public Vector2f Size = new Vector2f(Game.TileSizePx, Game.TileSizePx);
 
     protected GameObject(RenderWindow? window)
     {
-        _win = window;
+        _win = window; 
     }
 
     public virtual void Move(Vector2f offset)
