@@ -10,9 +10,16 @@ public enum JumpState
     Falling = 2
 }
 
+public enum Textures
+{
+    Right = 0,
+    Left = 1
+}
+
 public class Player : GameObject
 {
     public Vector2i TilePos;
+    private float ratio;
     
     public float MoveSpeed = 3f;
     public float GravitySpeed = 1f * Game.Scale;
@@ -23,11 +30,22 @@ public class Player : GameObject
     public float JumpTime = 4;
     public float JumpCounter;
     public Vector2f JumpStart;
+    
+    public Textures CurrentTexture = Textures.Right;
+    public Texture[] MyTextures =
+    {
+        new Texture("./Resources/Images/Player/right.png"),
+        new Texture("./Resources/Images/Player/left.png"),
+    };
 
     public Player(RenderWindow? window) : base(window)
     {
-        CurrentSprite.Texture = new Texture("./Resources/Images/Player/sprite.jpg");
+        CurrentSprite.Texture = MyTextures[(int)Textures.Right];
         BaseSize = Size;
+        Pos.Y = 6 * Game.TileSizePx;
+        ratio = (float)CurrentSprite.Texture.Size.X / (float)CurrentSprite.Texture.Size.Y;
+        
+        Size = new Vector2f(ratio * Game.TileSizePx, Game.TileSizePx);
     }
 
     public override void Move(Vector2f offset)
@@ -59,16 +77,20 @@ public class Player : GameObject
                 Utility.ToTilePos(new Vector2f(hypoPos.X + Size.X, hypoPos.Y + Size.Y - 1)).X] != 0
             || Game.Map[Utility.ToTilePos(new Vector2f(hypoPos.X + Size.X, hypoPos.Y)).Y, 
                 Utility.ToTilePos(new Vector2f(hypoPos.X + Size.X, hypoPos.Y)).X] != 0)
-            offset.X = Game.TileSizePx * Utility.ToTilePos(new Vector2f(hypoPos.X + Size.X, hypoPos.Y)).X -
-                       (Pos.X + Size.X);
-        
-        if (Game.Map[Utility.ToTilePos(new Vector2f(hypoPos.X, hypoPos.Y + Size.Y - 1)).Y, 
-                Utility.ToTilePos(new Vector2f(hypoPos.X, hypoPos.Y + Size.Y - 1)).X] != 0
-            || Game.Map[Utility.ToTilePos(new Vector2f(hypoPos.X, hypoPos.Y)).Y, 
-                Utility.ToTilePos(new Vector2f(hypoPos.X, hypoPos.Y)).X] != 0)
-            offset.X = Pos.X - (Game.TileSizePx * Utility.ToTilePos(new Vector2f(hypoPos.X, hypoPos.Y)).X +
-                                Game.TileSizePx);
+        {
+            Pos.X = Game.TileSizePx * Utility.ToTilePos(new Vector2f(hypoPos.X + Size.X, hypoPos.Y)).X - Size.X;
+            return;
+        }
 
+        if (Game.Map[Utility.ToTilePos(new Vector2f(hypoPos.X, hypoPos.Y + Size.Y - 1)).Y,
+                Utility.ToTilePos(new Vector2f(hypoPos.X, hypoPos.Y + Size.Y - 1)).X] != 0
+            || Game.Map[Utility.ToTilePos(new Vector2f(hypoPos.X, hypoPos.Y)).Y,
+                Utility.ToTilePos(new Vector2f(hypoPos.X, hypoPos.Y)).X] != 0)
+        {
+            Pos.X = Game.TileSizePx * (Utility.ToTilePos(new Vector2f(hypoPos.X, hypoPos.Y)).X + 1);
+            return;
+        }
+        
         base.Move(offset);
     }
 
@@ -126,6 +148,11 @@ public class Player : GameObject
                 JumpState = JumpState.Falling;   
         }
 
+        CurrentSprite.Scale = new Vector2f(
+            Size.X / CurrentSprite.GetLocalBounds().Width,
+            Size.Y / CurrentSprite.GetLocalBounds().Height);
+        
+        
         base.Move(offset);
         base.Update();
     }

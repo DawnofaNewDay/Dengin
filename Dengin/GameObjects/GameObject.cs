@@ -23,9 +23,6 @@ public class GameObject
 
     public virtual void Update()
     {
-        CurrentSprite.Scale = new Vector2f(
-            Size.X / CurrentSprite.GetLocalBounds().Width,
-            Size.Y / CurrentSprite.GetLocalBounds().Height);
         Win.Draw(CurrentSprite);
     }
 }

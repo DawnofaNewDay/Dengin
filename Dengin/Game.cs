@@ -20,16 +20,16 @@ public static class Game
 
     public static int[,] Map =
     {
-        { 0, 0, 0, 0, 0, 0, 0, 0 },
-        { 0, 0, 0, 0, 0, 0, 0, 0 },
-        { 0, 0, 0, 0, 0, 0, 0, 0 },
-        { 0, 0, 4, 4, 4, 4, 4, 4 },
-        { 0, 0, 0, 3, 0, 0, 0, 3 },
-        { 3, 0, 0, 3, 0, 5, 0, 3 },
-        { 0, 0, 0, 0, 0, 0, 0, 3 },
-        { 1, 1, 1, 1, 1, 1, 1, 1 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 4, 4, 4, 4, 4, 4, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 3, 0 },
+        { 3, 0, 0, 0, 0, 0, 0, 3, 0 },
+        { 0, 0, 0, 3, 0, 3, 0, 3, 0 },
+        { 1, 1, 1, 1, 1, 1, 1, 1, 0 },
     };
-    public static Vector2u MapDimensions = new(8, 8);
+    public static Vector2u MapDimensions = new(9, 8);
     
     public static Tilemap Tmap = new Tilemap(Utility.ToOneDimArray(Map), MapDimensions.X, MapDimensions.Y, new Vector2u(TileSize, TileSize));
 
@@ -61,10 +61,20 @@ public static class Game
     {
         if (Keyboard.IsKeyPressed(Keyboard.Key.A))
         {
+            if (MainPlayer.CurrentTexture != Textures.Left)
+            {
+                MainPlayer.CurrentTexture = Textures.Left;
+                MainPlayer.CurrentSprite.Texture = MainPlayer.MyTextures[(int)Textures.Left];
+            }
             MainPlayer.Move(new Vector2f(-MainPlayer.MoveSpeed, 0));
         }
         else if (Keyboard.IsKeyPressed(Keyboard.Key.D))
         {
+            if (MainPlayer.CurrentTexture != Textures.Right)
+            {
+                MainPlayer.CurrentTexture = Textures.Right;
+                MainPlayer.CurrentSprite.Texture = MainPlayer.MyTextures[(int)Textures.Right];
+            }
             MainPlayer.Move(new Vector2f(MainPlayer.MoveSpeed, 0));
         }
 
