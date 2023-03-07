@@ -11,11 +11,10 @@ public class Tilemap : Transformable, Drawable
     private VertexArray _vertices = new();
     private Texture _tilemap = new("./Resources/Images/Tilemaps/Default.png");
     
-    public Tilemap(int[] map, uint width, uint height, Vector2f tileSize)
+    public Tilemap(int[] map, uint width, uint height, Vector2u tileSize)
     {
         Width = width;
         Height = height;
-
         _vertices.PrimitiveType = PrimitiveType.Quads;
         _vertices.Resize(width * height * 4);
         

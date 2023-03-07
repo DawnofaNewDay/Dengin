@@ -7,12 +7,12 @@ public class GameObject
 {
     protected Vector2f Pos = new Vector2f(0, 0);
     public readonly Sprite CurrentSprite = new Sprite();
-    protected readonly RenderWindow? _win;
+    protected readonly RenderWindow? Win;
     public Vector2f Size = new Vector2f(Game.TileSizePx, Game.TileSizePx);
 
     protected GameObject(RenderWindow? window)
     {
-        _win = window; 
+        Win = window; 
     }
 
     public virtual void Move(Vector2f offset)
@@ -26,6 +26,6 @@ public class GameObject
         CurrentSprite.Scale = new Vector2f(
             Size.X / CurrentSprite.GetLocalBounds().Width,
             Size.Y / CurrentSprite.GetLocalBounds().Height);
-        _win.Draw(CurrentSprite);
+        Win.Draw(CurrentSprite);
     }
 }

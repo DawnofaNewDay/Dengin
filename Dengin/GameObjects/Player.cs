@@ -12,13 +12,15 @@ public enum JumpState
 
 public class Player : GameObject
 {
+    public Vector2i TilePos;
+    
     public float MoveSpeed = 3f;
     public float GravitySpeed = 1f * Game.Scale;
-    public float JumpHeight = 20f * Game.Scale;
+    public float JumpHeight = 2 * Game.TileSizePx;
     public Vector2f BaseSize;
 
     public JumpState JumpState = JumpState.Falling;
-    public float JumpTime = 3;
+    public float JumpTime = 4;
     public float JumpCounter;
     public Vector2f JumpStart;
 
@@ -32,25 +34,53 @@ public class Player : GameObject
     {
         Vector2f hypoPos = Pos + offset;
 
-        if (hypoPos.X + Size.X > _win.Size.X) 
-            offset.X = _win.Size.X - (Pos.X + Size.X);
-        if (hypoPos.X < 0) 
+        if (hypoPos.X + Size.X > Win.Size.X)
+        {
+            offset.X = Win.Size.X - (Pos.X + Size.X);
+            base.Move(offset);
+            return;
+        }
+        if (hypoPos.X < 0)
+        {
             offset.X = -Pos.X;
-        if (hypoPos.Y + Size.Y > _win.Size.Y) 
-            offset.Y = _win.Size.Y - (Pos.Y + Size.Y);
+            base.Move(offset);
+            return;
+        }
+        if (hypoPos.Y + Size.Y > Win.Size.Y) 
+            offset.Y = Win.Size.Y - (Pos.Y + Size.Y);
         if (hypoPos.Y < 0) 
-            offset.Y = -Pos.Y;
-            
+        {
+            offset.X = -Pos.Y;
+            base.Move(offset);
+            return;
+        }
+        
+        if (Game.Map[Utility.ToTilePos(new Vector2f(hypoPos.X + Size.X, hypoPos.Y + Size.Y - 1)).Y, 
+                Utility.ToTilePos(new Vector2f(hypoPos.X + Size.X, hypoPos.Y + Size.Y - 1)).X] != 0
+            || Game.Map[Utility.ToTilePos(new Vector2f(hypoPos.X + Size.X, hypoPos.Y)).Y, 
+                Utility.ToTilePos(new Vector2f(hypoPos.X + Size.X, hypoPos.Y)).X] != 0)
+            offset.X = Game.TileSizePx * Utility.ToTilePos(new Vector2f(hypoPos.X + Size.X, hypoPos.Y)).X -
+                       (Pos.X + Size.X);
+        
+        if (Game.Map[Utility.ToTilePos(new Vector2f(hypoPos.X, hypoPos.Y + Size.Y - 1)).Y, 
+                Utility.ToTilePos(new Vector2f(hypoPos.X, hypoPos.Y + Size.Y - 1)).X] != 0
+            || Game.Map[Utility.ToTilePos(new Vector2f(hypoPos.X, hypoPos.Y)).Y, 
+                Utility.ToTilePos(new Vector2f(hypoPos.X, hypoPos.Y)).X] != 0)
+            offset.X = Pos.X - (Game.TileSizePx * Utility.ToTilePos(new Vector2f(hypoPos.X, hypoPos.Y)).X +
+                                Game.TileSizePx);
+
         base.Move(offset);
     }
 
     public override void Update()
     {
+        TilePos = new Vector2i((int)Math.Floor(Pos.X / Game.TileSizePx), (int)Math.Floor(Pos.Y / Game.TileSizePx));
+        
         Vector2f offset = new Vector2f();
         if (JumpState != JumpState.Jumping)
         {
-            if (Pos.Y + GravitySpeed + Size.Y > _win.Size.Y)
-                offset.Y = _win.Size.Y - (Pos.Y + Size.Y);
+            if (Pos.Y + GravitySpeed + Size.Y > Win.Size.Y)
+                offset.Y = Win.Size.Y - (Pos.Y + Size.Y);
             else
                 offset.Y = GravitySpeed;
         }
@@ -70,10 +100,32 @@ public class Player : GameObject
                 JumpCounter = 0;
             }
         }
-        
-        if (Pos.Y + Size.Y == _win.Size.Y)
-            JumpState = JumpState.Grounded;
-        
+
+        Vector2f hypoPos = Pos + offset;
+
+        if (Game.Map[Utility.ToTilePos(new Vector2f(hypoPos.X, hypoPos.Y)).Y,
+                Utility.ToTilePos(new Vector2f(hypoPos.X, hypoPos.Y)).X] != 0
+            || Game.Map[Utility.ToTilePos(new Vector2f(hypoPos.X + Size.X, hypoPos.Y)).Y,
+                Utility.ToTilePos(new Vector2f(hypoPos.X + Size.X, hypoPos.Y)).X] != 0)
+        {
+            offset.Y = Game.TileSizePx * Utility.ToTilePos(new Vector2f(hypoPos.X, hypoPos.Y + Size.Y)).Y - Pos.Y;
+            JumpState = JumpState.Falling;
+        }
+
+            if (JumpState != JumpState.Jumping)
+        {
+            if (Game.Map[Utility.ToTilePos(new Vector2f(hypoPos.X, hypoPos.Y + Size.Y - 1)).Y,
+                    Utility.ToTilePos(new Vector2f(hypoPos.X, hypoPos.Y - 1)).X] != 0
+                || Game.Map[Utility.ToTilePos(new Vector2f(hypoPos.X + Size.X - 1, hypoPos.Y + Size.Y - 1)).Y,
+                    Utility.ToTilePos(new Vector2f(hypoPos.X + Size.X - 1, hypoPos.Y - 1)).X] != 0)
+            {
+                offset.Y = (Game.TileSizePx * Utility.ToTilePos(new Vector2f(hypoPos.X, hypoPos.Y)).Y - Pos.Y) * Size.Y / BaseSize.Y;
+                JumpState = JumpState.Grounded;
+            }
+            else
+                JumpState = JumpState.Falling;   
+        }
+
         base.Move(offset);
         base.Update();
     }
