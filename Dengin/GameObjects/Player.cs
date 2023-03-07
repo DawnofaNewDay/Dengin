@@ -105,14 +105,14 @@ public class Player : GameObject
 
         if (Game.Map[Utility.ToTilePos(new Vector2f(hypoPos.X, hypoPos.Y)).Y,
                 Utility.ToTilePos(new Vector2f(hypoPos.X, hypoPos.Y)).X] != 0
-            || Game.Map[Utility.ToTilePos(new Vector2f(hypoPos.X + Size.X, hypoPos.Y)).Y,
-                Utility.ToTilePos(new Vector2f(hypoPos.X + Size.X, hypoPos.Y)).X] != 0)
+            || Game.Map[Utility.ToTilePos(new Vector2f(hypoPos.X + Size.X - 1, hypoPos.Y)).Y,
+                Utility.ToTilePos(new Vector2f(hypoPos.X + Size.X - 1, hypoPos.Y)).X] != 0)
         {
             offset.Y = Game.TileSizePx * Utility.ToTilePos(new Vector2f(hypoPos.X, hypoPos.Y + Size.Y)).Y - Pos.Y;
             JumpState = JumpState.Falling;
         }
 
-            if (JumpState != JumpState.Jumping)
+        if (JumpState != JumpState.Jumping)
         {
             if (Game.Map[Utility.ToTilePos(new Vector2f(hypoPos.X, hypoPos.Y + Size.Y - 1)).Y,
                     Utility.ToTilePos(new Vector2f(hypoPos.X, hypoPos.Y - 1)).X] != 0
