@@ -1,3 +1,5 @@
+using System.Runtime.InteropServices;
+using SFML.Audio;
 using SFML.Graphics;
 using SFML.System;
 
@@ -12,155 +14,101 @@ public enum JumpState
 
 public enum Textures
 {
-    Right = 0,
-    Left = 1
+    Up = 0,
+    Down = 1,
+    Left = 2,
+    Right = 3
+}
+
+public enum SFX
+{
+    Bump = 0
 }
 
 public class Player : GameObject
 {
-    public Vector2i TilePos;
-    private float ratio;
+    public bool Moving = false;
+    public float MoveTime = 0.03f;
+    public float LerpTime = 0f;
     
-    public float MoveSpeed = 3f;
-    public float GravitySpeed = 1f * Game.Scale;
-    public float JumpHeight = 2 * Game.TileSizePx;
-    public Vector2f BaseSize;
+    public Vector2f OldPos;
+    public Vector2f Destination;
+    public Vector2f Center => new(Pos.X + Size.X / 2, Pos.Y + Size.Y / 2);
 
-    public JumpState JumpState = JumpState.Falling;
-    public float JumpTime = 4;
-    public float JumpCounter;
-    public Vector2f JumpStart;
-    
     public Textures CurrentTexture = Textures.Right;
-    public Texture[] MyTextures =
+    public float Ratio => ((float)CurrentSprite.Texture.Size.Y / (float)CurrentSprite.Texture.Size.X);
+    public Vector2f SpriteSize => new(Size.X, Size.Y * Ratio);
+    public readonly Texture[] MyTextures =
     {
-        new Texture("./Resources/Images/Player/right.png"),
+        new Texture("./Resources/Images/Player/up.png"),
+        new Texture("./Resources/Images/Player/down.png"),
         new Texture("./Resources/Images/Player/left.png"),
+        new Texture("./Resources/Images/Player/right.png")
+    };
+    
+    public readonly Sound[] SfXs =
+    {
+        new(new SoundBuffer("./Resources/Sound/SFX/bump.wav"))
     };
 
-    public Player(RenderWindow? window) : base(window)
+    public Player()
     {
         CurrentSprite.Texture = MyTextures[(int)Textures.Right];
-        BaseSize = Size;
-        Pos.Y = 6 * Game.TileSizePx;
-        ratio = (float)CurrentSprite.Texture.Size.X / (float)CurrentSprite.Texture.Size.Y;
-        
-        Size = new Vector2f(ratio * Game.TileSizePx, Game.TileSizePx);
+        Pos = new Vector2f(5 * Game.TileSizePx, 5 * Game.TileSizePx);
     }
 
     public override void Move(Vector2f offset)
     {
-        Vector2f hypoPos = Pos + offset;
-
-        if (hypoPos.X + Size.X > Win.Size.X)
+        offset = new Vector2f(offset.X * Game.TileSizePx, offset.Y * Game.TileSizePx);
+        OldPos = Pos;
+        Destination = Pos + offset;
+        if (!Utility.IsWalkable(Utility.PullTile(Destination)))
         {
-            offset.X = Win.Size.X - (Pos.X + Size.X);
-            base.Move(offset);
+            PlaySfx(SFX.Bump, 20);
             return;
         }
-        if (hypoPos.X < 0)
-        {
-            offset.X = -Pos.X;
-            base.Move(offset);
-            return;
-        }
-        if (hypoPos.Y + Size.Y > Win.Size.Y) 
-            offset.Y = Win.Size.Y - (Pos.Y + Size.Y);
-        if (hypoPos.Y < 0) 
-        {
-            offset.X = -Pos.Y;
-            base.Move(offset);
-            return;
-        }
-        
-        if (Game.Map[Utility.ToTilePos(new Vector2f(hypoPos.X + Size.X, hypoPos.Y + Size.Y - 1)).Y, 
-                Utility.ToTilePos(new Vector2f(hypoPos.X + Size.X, hypoPos.Y + Size.Y - 1)).X] != 0
-            || Game.Map[Utility.ToTilePos(new Vector2f(hypoPos.X + Size.X, hypoPos.Y)).Y, 
-                Utility.ToTilePos(new Vector2f(hypoPos.X + Size.X, hypoPos.Y)).X] != 0)
-        {
-            Pos.X = Game.TileSizePx * Utility.ToTilePos(new Vector2f(hypoPos.X + Size.X, hypoPos.Y)).X - Size.X;
-            return;
-        }
-
-        if (Game.Map[Utility.ToTilePos(new Vector2f(hypoPos.X, hypoPos.Y + Size.Y - 1)).Y,
-                Utility.ToTilePos(new Vector2f(hypoPos.X, hypoPos.Y + Size.Y - 1)).X] != 0
-            || Game.Map[Utility.ToTilePos(new Vector2f(hypoPos.X, hypoPos.Y)).Y,
-                Utility.ToTilePos(new Vector2f(hypoPos.X, hypoPos.Y)).X] != 0)
-        {
-            Pos.X = Game.TileSizePx * (Utility.ToTilePos(new Vector2f(hypoPos.X, hypoPos.Y)).X + 1);
-            return;
-        }
-        
-        base.Move(offset);
+        Moving = true;
+        LerpTime = 0;
     }
 
     public override void Update()
     {
-        TilePos = new Vector2i((int)Math.Floor(Pos.X / Game.TileSizePx), (int)Math.Floor(Pos.Y / Game.TileSizePx));
-        
-        Vector2f offset = new Vector2f();
-        if (JumpState != JumpState.Jumping)
+        if (Moving)
         {
-            if (Pos.Y + GravitySpeed + Size.Y > Win.Size.Y)
-                offset.Y = Win.Size.Y - (Pos.Y + Size.Y);
-            else
-                offset.Y = GravitySpeed;
-        }
-
-        if (JumpState == JumpState.Jumping)
-        {
-            if (JumpCounter < JumpTime)
+            LerpTime += 0.1f * Game.DeltaTime;
+            Vector2f predictedPos = new Vector2f(
+                Utility.Lerp(OldPos.X, Destination.X, LerpTime / MoveTime), 
+                Utility.Lerp(OldPos.Y, Destination.Y, LerpTime / MoveTime)
+            );
+            if (LerpTime >= MoveTime)
             {
-                JumpCounter += 0.1f;
-                float t = JumpCounter / JumpTime;
-                t = (float)Math.Sin(t * Math.PI * 0.5f);
-                Pos.Y = Utility.Lerp(JumpStart.Y, JumpStart.Y - JumpHeight, t);
+                Pos = Destination;
+                Moving = false;
+                LerpTime = 0;
             }
             else
             {
-                JumpState = JumpState.Falling;
-                JumpCounter = 0;
+                Pos = predictedPos;
             }
         }
-
-        Vector2f hypoPos = Pos + offset;
-
-        if (Game.Map[Utility.ToTilePos(new Vector2f(hypoPos.X, hypoPos.Y)).Y,
-                Utility.ToTilePos(new Vector2f(hypoPos.X, hypoPos.Y)).X] != 0
-            || Game.Map[Utility.ToTilePos(new Vector2f(hypoPos.X + Size.X - 1, hypoPos.Y)).Y,
-                Utility.ToTilePos(new Vector2f(hypoPos.X + Size.X - 1, hypoPos.Y)).X] != 0)
-        {
-            offset.Y = Game.TileSizePx * Utility.ToTilePos(new Vector2f(hypoPos.X, hypoPos.Y + Size.Y)).Y - Pos.Y;
-            JumpState = JumpState.Falling;
-        }
-
-        if (JumpState != JumpState.Jumping)
-        {
-            if (Game.Map[Utility.ToTilePos(new Vector2f(hypoPos.X, hypoPos.Y + Size.Y - 1)).Y,
-                    Utility.ToTilePos(new Vector2f(hypoPos.X, hypoPos.Y - 1)).X] != 0
-                || Game.Map[Utility.ToTilePos(new Vector2f(hypoPos.X + Size.X - 1, hypoPos.Y + Size.Y - 1)).Y,
-                    Utility.ToTilePos(new Vector2f(hypoPos.X + Size.X - 1, hypoPos.Y - 1)).X] != 0)
-            {
-                offset.Y = (Game.TileSizePx * Utility.ToTilePos(new Vector2f(hypoPos.X, hypoPos.Y)).Y - Pos.Y) * Size.Y / BaseSize.Y;
-                JumpState = JumpState.Grounded;
-            }
-            else
-                JumpState = JumpState.Falling;   
-        }
-
-        CurrentSprite.Scale = new Vector2f(
-            Size.X / CurrentSprite.GetLocalBounds().Width,
-            Size.Y / CurrentSprite.GetLocalBounds().Height);
         
+        CurrentSprite.Texture = MyTextures[(int)CurrentTexture];
+        Game.MainCam.Center = new Vector2f((int)Math.Round(Center.X), (int)Math.Round(Center.Y));
+        Game.Win.SetView(Game.MainCam);
+
+        CurrentSprite.Scale = new Vector2f(SpriteSize.X / CurrentSprite.Texture.Size.X, SpriteSize.Y / CurrentSprite.Texture.Size.Y);
+        Pos = new Vector2f((int)Math.Round(Pos.X), (int)Math.Round(Pos.Y));
+        CurrentSprite.Position = new Vector2f((int)Math.Round(Pos.X), (int)Math.Round(Pos.Y - (SpriteSize.Y - SpriteSize.X)));
         
-        base.Move(offset);
-        base.Update();
+        Game.Win.Draw(CurrentSprite);
     }
 
-    public void Jump()
+    public void PlaySfx(SFX index, int volume = 20)
     {
-        JumpState = JumpState.Jumping;
-        JumpCounter = 0.1f;
-        JumpStart = Pos;
+        if (SfXs[(int)index].Status != SoundStatus.Playing)
+        {
+            SfXs[(int)index].Volume = volume;
+            SfXs[(int)index].Play();
+        }
     }
 }

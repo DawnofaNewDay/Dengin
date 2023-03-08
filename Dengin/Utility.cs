@@ -13,6 +13,17 @@ public static class Utility
     {
         return new Vector2i((int)Math.Floor(pos.X / Game.TileSizePx), (int)Math.Floor(pos.Y / Game.TileSizePx));
     }
+
+    public static int PullTile(Vector2f pos)
+    {
+        if (pos.X < 0 
+            || pos.Y < 0 
+            || pos.X > (Game.MapDimensions.X - 1) * Game.TileSizePx 
+            || pos.Y > (Game.MapDimensions.Y - 1) * Game.TileSizePx)
+            return 0;
+        
+        return Game.Map[ToTilePos(pos).Y, ToTilePos(pos).X];
+    }
     
     public static int[] ToOneDimArray(int[,] twoDimArray)
     {
@@ -24,5 +35,10 @@ public static class Utility
             i++;
         }
         return oneDimArray;
+    }
+    
+    public static bool IsWalkable(int Tile)
+    {
+        return Game.WalkableTiles.Contains(Tile);
     }
 }
