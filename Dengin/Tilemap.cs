@@ -9,7 +9,7 @@ public class Tilemap : Transformable, Drawable
     public uint Height;
 
     private VertexArray _vertices = new();
-    private Texture _tilemap = new("./Resources/Images/Tilemaps/Default.png");
+    private Texture _tilemap = new("./Data/Images/Tilemaps/Default.png");
     
     public Tilemap(int[] map, uint width, uint height, Vector2u tileSize)
     {

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Dawn\\RiderProjects\\Dengin\\Dengin\\Dengin.csproj": {}
+    "C:\\Users\\Dawn\\Projects\\Dengin\\Dengin\\Dengin.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Dawn\\RiderProjects\\Dengin\\Dengin\\Dengin.csproj": {
+    "C:\\Users\\Dawn\\Projects\\Dengin\\Dengin\\Dengin.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Dawn\\RiderProjects\\Dengin\\Dengin\\Dengin.csproj",
+        "projectUniqueName": "C:\\Users\\Dawn\\Projects\\Dengin\\Dengin\\Dengin.csproj",
         "projectName": "Dengin",
-        "projectPath": "C:\\Users\\Dawn\\RiderProjects\\Dengin\\Dengin\\Dengin.csproj",
+        "projectPath": "C:\\Users\\Dawn\\Projects\\Dengin\\Dengin\\Dengin.csproj",
         "packagesPath": "C:\\Users\\Dawn\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Dawn\\RiderProjects\\Dengin\\Dengin\\obj\\",
+        "outputPath": "C:\\Users\\Dawn\\Projects\\Dengin\\Dengin\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Dawn\\AppData\\Roaming\\NuGet\\NuGet.Config",

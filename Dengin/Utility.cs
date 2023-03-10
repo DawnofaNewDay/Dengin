@@ -39,6 +39,34 @@ public static class Utility
     
     public static bool IsWalkable(int Tile)
     {
-        return Game.WalkableTiles.Contains(Tile);
+        return !Game.TmapCollision.Contains(Tile);
+    }
+
+    public static (int[,], Vector2u, Vector2i) SequenceToMap(string sequence)
+    {
+        string[] sequenceArray = sequence.Split('-');
+        int[,] map = new int[int.Parse(sequenceArray[1]), int.Parse(sequenceArray[0])];
+
+        string[] tileSequence = sequenceArray[2].Split(".");
+
+        for (int y = 0; y < map.GetLength(1); y++)
+        {
+            for (int x = 0; x < map.GetLength(0); x++)
+            {
+                Console.WriteLine(tileSequence[y * map.GetLength(1) + x].ToString());
+                map[y, x] = int.Parse(tileSequence[y * map.GetLength(1) + x].ToString());
+            }
+        }
+
+        return (
+            map, 
+            new Vector2u((uint)map.GetLength(1), (uint)map.GetLength(0)), 
+            new Vector2i(int.Parse(sequenceArray[3]), int.Parse(sequenceArray[4]))
+        );
+    }
+
+    public static int[] LoadCollision(string filename)
+    {
+        return File.ReadAllText($"Data/Images/Tilemaps/{filename}.collision").Split('.').Select(int.Parse).ToArray();
     }
 }

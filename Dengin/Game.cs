@@ -19,36 +19,27 @@ public static class Game
     public static readonly RenderWindow Win = new(new VideoMode((uint)Math.Round(15 * TileSizePx), (uint)Math.Round(10 * TileSizePx)), "Good Morning", Styles.Close);
     public static uint FrameRate = 144;
     
-    public static readonly Player MainPlayer = new();
-    public static readonly View MainCam = new(MainPlayer.Center, (Vector2f)Win.Size);
-    public static List<GameObject> _levelObjects = new()
-    {
-        MainPlayer
-    };
+    public static Player MainPlayer;
+    public static View MainCam;
+    public static List<GameObject> _levelObjects = new();
 
-    public static int[] WalkableTiles =
-    {
-        0, 1, 2, 3, 4, 5, 6, 7, 25, 26, 27, 18, 29, 30, 31, 32, 50, 51, 250, 175, 725, 675, 225, 275, 650, 200, 700
-    };
-    public static int[,] Map =
-    {
-        { 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8 },
-        { 8, 30, 6, 30, 29, 29, 6, 50, 50, 6, 29, 50, 6, 6, 50, 50, 50, 50, 30, 30, 6, 30, 6, 8 },
-        { 8, 30, 6, 30, 29, 29, 6, 50, 50, 6, 29, 50, 6, 6, 50, 50, 50, 50, 30, 30, 6, 30, 6, 8 },
-        { 8, 30, 6, 30, 29, 29, 6, 50, 50, 6, 29, 50, 6, 6, 50, 50, 50, 50, 30, 30, 6, 30, 6, 8 },
-        { 8, 30, 6, 30, 29, 29, 6, 50, 50, 6, 29, 50, 6, 51, 314, 315, 316, 51, 30, 30, 6, 30, 6, 8 },
-        { 8, 30, 6, 30, 29, 29, 6, 50, 50, 700, 250, 250, 250, 250, 250, 250, 250, 725, 30, 30, 6, 30, 6, 8 },
-        { 8, 30, 6, 30, 29, 29, 6, 50, 50, 200, 175, 175, 175, 175, 175, 175, 175, 225, 578, 603, 6, 30, 6, 8 },
-        { 8, 30, 6, 30, 29, 29, 6, 50, 50, 650, 275, 275, 275, 275, 275, 275, 275, 675, 268, 269, 6, 30, 6, 8 },
-        { 8, 30, 6, 30, 29, 29, 6, 50, 50, 6, 29, 50, 6, 6, 50, 50, 50, 50, 629, 654, 6, 30, 6, 8 },
-        { 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8 },
-    };
-    public static Vector2u MapDimensions = new(24, 10);
-    
-    public static Tilemap Tmap = new Tilemap(Utility.ToOneDimArray(Map), MapDimensions.X, MapDimensions.Y, new Vector2u(TileSize, TileSize));
+    public static string Sequence = File.ReadAllText("Data/Maps/Map1");
+    public static int[,] Map;
+    public static Vector2u MapDimensions;
+    public static Vector2i SpawnPos;
+    public static Tilemap Tmap;
+    public static int[] TmapCollision;
 
     public static void Main()
     {
+        (Map, MapDimensions, SpawnPos) = Utility.SequenceToMap(Sequence);
+        Tmap = new Tilemap(Utility.ToOneDimArray(Map), MapDimensions.X, MapDimensions.Y, new Vector2u(TileSize, TileSize));
+        TmapCollision = Utility.LoadCollision("Default");
+
+        MainPlayer = new Player();
+        MainCam = new(MainPlayer.Center, (Vector2f)Win.Size);
+        _levelObjects.Add(MainPlayer);
+
         Win.SetFramerateLimit(FrameRate);
         Win.SetView(MainCam);
         

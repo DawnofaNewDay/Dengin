@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using SFML.Audio;
 using SFML.Graphics;
 using SFML.System;
@@ -40,21 +39,21 @@ public class Player : GameObject
     public Vector2f SpriteSize => new(Size.X, Size.Y * Ratio);
     public readonly Texture[] MyTextures =
     {
-        new Texture("./Resources/Images/Player/up.png"),
-        new Texture("./Resources/Images/Player/down.png"),
-        new Texture("./Resources/Images/Player/left.png"),
-        new Texture("./Resources/Images/Player/right.png")
+        new Texture("./Data/Images/Player/up.png"),
+        new Texture("./Data/Images/Player/down.png"),
+        new Texture("./Data/Images/Player/left.png"),
+        new Texture("./Data/Images/Player/right.png")
     };
     
     public readonly Sound[] SfXs =
     {
-        new(new SoundBuffer("./Resources/Sound/SFX/bump.wav"))
+        new(new SoundBuffer("./Data/Sound/SFX/bump.wav"))
     };
 
     public Player()
     {
         CurrentSprite.Texture = MyTextures[(int)Textures.Right];
-        Pos = new Vector2f(5 * Game.TileSizePx, 5 * Game.TileSizePx);
+        Pos = new Vector2f(Game.SpawnPos.X * Game.TileSizePx, Game.SpawnPos.Y * Game.TileSizePx);
     }
 
     public override void Move(Vector2f offset)

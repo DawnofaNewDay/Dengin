@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "4LvDIzQtu/R1ecBTcF4Fl2cHWCukYPm3MRHrb3sW+5I2/7LB9KvVMlWgYDXaUaV7d//741iUTPg7dC8741gOmg==",
+  "dgSpecHash": "aaxUOl2whduirmcGNe2qTvA7N4mlYg6L5eCf3JLjKWKLChgbYdb1jgra8uYpYw53ImXdynudPApue31Bt4HIAw==",
   "success": true,
-  "projectFilePath": "C:\\Users\\Dawn\\RiderProjects\\Dengin\\Dengin\\Dengin.csproj",
+  "projectFilePath": "C:\\Users\\Dawn\\Projects\\Dengin\\Dengin\\Dengin.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Dawn\\.nuget\\packages\\csfml\\2.5.0\\csfml.2.5.0.nupkg.sha512",
     "C:\\Users\\Dawn\\.nuget\\packages\\sfml.audio\\2.5.0\\sfml.audio.2.5.0.nupkg.sha512",
